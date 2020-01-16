@@ -3,7 +3,8 @@
         "es6": true,
         "node": true
     },
-    "extends": "airbnb-base",
+    "extends": ["airbnb", "prettier", "airbnb-base"],
+    "plugins": ["prettier"],
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"
@@ -12,5 +13,18 @@
         "ecmaVersion": 2018,
         "sourceType": "module"
     },
-    "rules": {}
+    "rules": {
+        "prettier/prettier": ["error"],
+        "no-underscore-dangle": "off",
+        "arrow-parens": "off",
+        "object-curly-newline": "off",
+        "indent": "off",
+        "implicit-arrow-linebreak": "off",
+        "no-plusplus": "off",
+        "no-use-before-define": "off",
+        "import/no-extraneous-dependencies": "off",
+        "no-const-assign": "off",
+        "consistent-return": "off"
+    }
 }
+
