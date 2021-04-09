@@ -46,7 +46,7 @@ const queryBuilder = queryParamObject => {
 
   return Object.keys(queryParamObject).reduce(
     (acc, key) => ({ ...acc, [key]: fieldOptionMapper(key, query[key]) }),
-    {},
+    {}
   );
 };
 
@@ -58,7 +58,7 @@ const show = async id => {
     const movie = await Movie.findByIdAndUpdate(
       id,
       { $inc: { visits: 1 } },
-      { upsert: true, new: true },
+      { upsert: true, new: true }
     ).populate('genres');
     if (!movie) {
       throw new HttpError(400, 'No movie with that id');
@@ -158,6 +158,15 @@ const getTopRated = async () =>
     .limit(10)
     .exec();
 
+const getRelated = async (movieId, genres) => {
+  const movies = await Movie.find().exec();
+  return movies.filter(
+    movie =>
+      // eslint-disable-next-line comma-dangle
+      movie.genres.some(genre => genres.includes(`${genre}`)) && `${movie._id}` !== `${movieId}`
+  );
+};
+
 module.exports = {
   index,
   show,
@@ -167,4 +176,5 @@ module.exports = {
   addToWatchList,
   removeFromWatchList,
   getTopRated,
+  getRelated,
 };

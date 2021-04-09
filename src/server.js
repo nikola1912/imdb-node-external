@@ -50,14 +50,27 @@ async function seedData() {
 
   let roles = await Roles.find().exec();
   if (!roles.length) {
-    for (let roleData of [{name: 'ADMIN'}, {name: 'REGULAR'}]) {
+    for (const roleData of [{ name: 'ADMIN' }, { name: 'REGULAR' }]) {
       await Roles.create(roleData);
     }
   }
 
   const genres = await Genre.find().exec();
   if (!genres.length) {
-    for (let genreName of ['Comedy', 'Sci-Fi', 'Horror', 'Romance', 'Action', 'Thriller', 'Drama', 'Mystery', 'Crime', 'Animation', 'Adventure', 'Fantasy']) {
+    for (const genreName of [
+      'Comedy',
+      'Sci-Fi',
+      'Horror',
+      'Romance',
+      'Action',
+      'Thriller',
+      'Drama',
+      'Mystery',
+      'Crime',
+      'Animation',
+      'Adventure',
+      'Fantasy',
+    ]) {
       await Genre.create({ name: genreName });
     }
   }
@@ -67,12 +80,16 @@ async function seedData() {
     if (!roles.length) {
       roles = await Roles.find().exec();
     }
-    for (let userData of [
+    for (const userData of [
       { email: 'admin@imdb.com', password: 'adminpass', name: 'Admin user', roles: [roles[0]] },
-      { email: 'regular@imdb.com', password: 'regularpass', name: 'Regular user', roles: [roles[1]] },
+      {
+        email: 'regular@imdb.com',
+        password: 'regularpass',
+        name: 'Regular user',
+        roles: [roles[1]],
+      },
     ]) {
       await User.create(userData);
     }
   }
-
 }

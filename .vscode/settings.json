@@ -10,5 +10,8 @@
     ],
     "eslint.autoFixOnSave": true,
     "editor.formatOnSave": false,
-    "files.autoSave": "onFocusChange"
+    "files.autoSave": "onFocusChange",
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    }
 }
