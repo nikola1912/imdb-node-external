@@ -14,6 +14,7 @@ const {
   removeFromWatchList,
   getTopRated,
   getRelated,
+  react,
 } = require('./../services/movies.service');
 
 router.get('/movies', async (req, res, next) => {
@@ -91,6 +92,15 @@ router.delete('/movies/:id/watch', async (req, res, next) => {
 router.delete('/movies/:id', async (req, res, next) => {
   try {
     const response = await destroy(req.params.id);
+    return res.send(response);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.put('/movies/:id/react', async (req, res, next) => {
+  try {
+    const response = await react(req.params.id, req.body.userId, req.body.reactionType);
     return res.send(response);
   } catch (err) {
     next(err);

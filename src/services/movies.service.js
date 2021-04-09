@@ -1,5 +1,6 @@
+/* eslint-disable prettier/prettier */
 const { ObjectID } = require('mongodb');
-const { Movie, WatchLists } = require('./../models');
+const { Movie, WatchLists, User } = require('./../models');
 const HttpError = require('../exceptions/exceptions');
 const { me } = require('./../services/user.service');
 const { getWatchList } = require('./../services/user.service');
@@ -46,7 +47,7 @@ const queryBuilder = queryParamObject => {
 
   return Object.keys(queryParamObject).reduce(
     (acc, key) => ({ ...acc, [key]: fieldOptionMapper(key, query[key]) }),
-    {}
+    {},
   );
 };
 
@@ -58,7 +59,7 @@ const show = async id => {
     const movie = await Movie.findByIdAndUpdate(
       id,
       { $inc: { visits: 1 } },
-      { upsert: true, new: true }
+      { upsert: true, new: true },
     ).populate('genres');
     if (!movie) {
       throw new HttpError(400, 'No movie with that id');
@@ -162,9 +163,54 @@ const getRelated = async (movieId, genres) => {
   const movies = await Movie.find().exec();
   return movies.filter(
     movie =>
-      // eslint-disable-next-line comma-dangle
-      movie.genres.some(genre => genres.includes(`${genre}`)) && `${movie._id}` !== `${movieId}`
+      movie.genres.some(genre => genres.includes(`${genre}`)) && `${movie._id}` !== `${movieId}`,
   );
+};
+
+const react = async (movieId, userId, reactionType) => {
+  let operation;
+  let updatedMovie;
+
+  const user = await User.findById(userId);
+  const movie = await Movie.findById(movieId);
+
+  if (reactionType === 'LIKE') {
+    if (user.liked.includes(movieId)) {
+      await User.findOneAndUpdate({ _id: userId }, { $pull: { liked: movieId } });
+      operation = 'removed';
+    } else {
+      await User.findOneAndUpdate({ _id: userId }, {
+        $push: { liked: movieId },
+        $pull: { disliked: user.disliked.includes(movieId) ? movieId : null },
+      });
+      operation = 'added';
+    }
+
+    updatedMovie = await Movie.findOneAndUpdate({ _id: movieId }, { $inc: {
+      likes: operation === 'added' ? 1 : -1,
+      dislikes: operation === 'added' && movie.dislikes !== 0 ? -1 : 0,
+    } }, { new: true });
+  } else if (reactionType === 'DISLIKE') {
+    if (user.disliked.includes(movieId)) {
+      await User.findOneAndUpdate({ _id: userId }, { $pull: { disliked: movieId } });
+      operation = 'removed';
+    } else {
+      await User.findOneAndUpdate({ _id: userId }, {
+        $push: { disliked: movieId },
+        $pull: { liked: user.liked.includes(movieId) ? movieId : null },
+      });
+      operation = 'added';
+    }
+
+    updatedMovie = await Movie.findOneAndUpdate({ _id: movieId }, { $inc: {
+      dislikes: operation === 'added' ? 1 : -1,
+      likes: operation === 'added' && movie.likes !== 0 ? -1 : 0,
+    } }, { new: true });
+  } else {
+    throw new HttpError(400, "Reaction doesn't exist");
+  }
+
+  return updatedMovie;
 };
 
 module.exports = {
@@ -177,4 +223,5 @@ module.exports = {
   removeFromWatchList,
   getTopRated,
   getRelated,
+  react,
 };

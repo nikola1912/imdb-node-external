@@ -23,6 +23,8 @@ const userSchema = new Schema(
       required: false,
       minlength: 6,
     },
+    liked: [{ type: Schema.Types.ObjectId, ref: 'Movie', required: true }],
+    disliked: [{ type: Schema.Types.ObjectId, ref: 'Movie', required: true }],
     roles: [{ type: Schema.Types.ObjectId, ref: 'Role' }],
   },
   { timestamps: true },
